@@ -27,7 +27,7 @@
 		}
 
 		.flex {
-			display: flex;
+			/* display: flex; */
 		}
 
 		.parallelCheck {
@@ -35,8 +35,8 @@
 		}
 
 		.flex label {
-			display: block;
-			min-width: 300px;
+			/* display: block; */
+			/* min-width: 300px; */
 		}
 
 		.netzplan {
@@ -78,25 +78,25 @@
 	<h2>Eintragsformular</h2>
 	<div id="formsContainer">
 		<div class="entryForm">
-			<div class="flex">
-				<label for="vorgang">Vorgang (A-Z):</label>
-				<input type="text" class="vorgang" pattern="[A-Za-z]+" required>
-			</div>
+
+			<label for="vorgang">Vorgang (A-Z):</label>
+			<input type="text" class="vorgang" pattern="[A-Za-z]+" required>
+
 			<br>
-			<div class="flex">
-				<label for="bezeichnung">Bezeichnung:</label>
-				<input type="text" class="bezeichnung" required>
-			</div>
+
+			<label for="bezeichnung">Bezeichnung:</label>
+			<input type="text" class="bezeichnung" required>
+
 			<br>
-			<div class="flex">
-				<label for="dauer">Dauer (Zahl):</label>
-				<input type="number" class="dauer" required>
-			</div>
+
+			<label for="dauer">Dauer (Zahl):</label>
+			<input type="number" class="dauer" required>
+
 			<br>
-			<div class="flex">
-				<label for="vorher">Vorher (A-Z, getrennt durch Kommas):</label>
-				<input type="text" class="vorher">
-			</div>
+
+			<label for="vorher">Vorher (A-Z, getrennt durch Kommas):</label>
+			<input type="text" class="vorher">
+
 			<br>
 			<input type="checkbox" class="parallelCheck" onchange="addParallelForm(this)"> Gleichzeitige Handlung
 			<br>
@@ -361,26 +361,6 @@
         <input type="checkbox" class="parallelCheck" onchange="addParallelForm(this)"> Gleichzeitige Handlung
         <br>
     </div>`;
-
-
-
-			// let parallelGroups = document.querySelector('.parallel-group');
-
-			// if (parallelGroups) {
-			// 	// Находим последний дочерний элемент внутри 'parallel-group'
-			// 	let lastChild = parallelGroups.lastElementChild;
-
-			// 	if (lastChild) {
-			// 		// Находим элемент <span class="number"> внутри последнего дочернего элемента
-			// 		let numberSpan = lastChild.querySelector('.number');
-
-			// 		if (numberSpan) {
-			// 			// Увеличиваем значение на 1
-			// 			let currentValue = parseInt(numberSpan.innerText.trim());
-			// 			numberSpan.innerText = currentValue + 1;
-			// 		}
-			// 	}
-			// }
 
 			let numberSpans = document.querySelectorAll('.number');
 			let counter = 1;
