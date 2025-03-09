@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Formular mit Tabelle</title>
+	<style>
+		body {
+			background-color: #51ff45;
+		}
+
+		table,
+		th,
+		td {
+			border: 1px solid black;
+			border-collapse: collapse;
+			padding: 8px;
+		}
+
+		th {
+			background-color: #f2f2f2;
+		}
+
+		.invisible {
+			visibility: none;
+		}
+
+		.flex {
+			display: flex;
+		}
+
+		.parallelCheck {
+			margin-bottom: 30px;
+		}
+
+		.flex label {
+			display: block;
+			min-width: 300px;
+		}
+
+		.netzplan {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin-top: 20px;
+			position: relative;
+		}
+
+		.table-block {
+			max-width: 338px !important;
+			overflow: hidden;
+		}
+
+		table {
+			margin-bottom: 20px;
+		}
+
+		.box {
+			border: 2px solid black;
+			padding: 10px;
+			margin: 10px;
+			text-align: center;
+			display: inline-block;
+			position: relative;
+		}
+
+		.parallel-group {
+			display: flex;
+			justify-content: center;
+			gap: 10px;
+			margin-bottom: 10px;
+		}
+	</style>
+</head>
+
+<body>
+	<h2>Eintragsformular</h2>
+	<div id="formsContainer">
+		<div class="entryForm">
+			<div class="flex">
+				<label for="vorgang">Vorgang (A-Z):</label>
+				<input type="text" class="vorgang" pattern="[A-Za-z]+" required>
+			</div>
+			<br>
+			<div class="flex">
+				<label for="bezeichnung">Bezeichnung:</label>
+				<input type="text" class="bezeichnung" required>
+			</div>
+			<br>
+			<div class="flex">
+				<label for="dauer">Dauer (Zahl):</label>
+				<input type="number" class="dauer" required>
+			</div>
+			<br>
+			<div class="flex">
+				<label for="vorher">Vorher (A-Z, getrennt durch Kommas):</label>
+				<input type="text" class="vorher">
+			</div>
+			<br>
+			<input type="checkbox" class="parallelCheck" onchange="addParallelForm(this)"> Gleichzeitige Handlung
+			<br>
+		</div>
+	</div>
+	<button type="button" onclick="addEntry()">Eintragen</button>
+
+	<h2>Einträge</h2>
+	<div class="table-block">
+		<table id="entryTable">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Vorgang</th>
+					<th>Bezeichnung</th>
+					<th>Dauer</th>
+					<th>Vorher</th>
+					<th class="invisible">FAZ</th>
+					<th class="invisible">FEZ</th>
+					<th class="invisible">SAZ</th>
+					<th class="invisible">SEZ</th>
+					<th class="invisible">FP</th>
+					<th class="invisible">GP</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</div>
+
+	<button onclick="deleteLastEntry()">Lösche letzten Eintrag</button>
+	<button onclick="clearTable()">Gesamte Tabelle leeren</button>
+
+	<div class="netzplan" id="netzplan"></div>
+
+	<script>
+		let elements = {};
+		let netzplanDiv = document.getElementById("netzplan");
+
+		// New Form for parallel activity
+		function addParallelForm(checkbox) {
+			if (checkbox.checked) {
+				let formContainer = document.getElementById("formsContainer");
+				let newForm = document.createElement("div");
+				newForm.className = "entryForm";
+				newForm.innerHTML = `
+            <label>Vorgang (A-Z):</label>
+            <input type="text" class="vorgang" pattern="[A-Za-z]+" required>
+            <br>
+            <label>Bezeichnung:</label>
+            <input type="text" class="bezeichnung" required>
+            <br>
+            <label>Dauer (Zahl):</label>
+            <input type="number" class="dauer" required>
+            <br>
+            <label>Vorher (A-Z, getrennt durch Комmas):</label>
+            <input type="text" class="vorher">
+            <br>
+            <input type="checkbox" class="parallelCheck" onchange="addParallelForm(this)"> Gleichzeitige Handlung
+            <br>
+        `;
+				formContainer.appendChild(newForm);
+			}
+		}
+
+		function addEntry() {
+			let forms = document.querySelectorAll(".entryForm");
+			let isParallel = forms.length > 1;
+			let parallelGroup = document.createElement("div");
+			parallelGroup.className = "parallel-group";
+
+			// Находим элемент <tbody>
+			let tableBody = document.getElementById("entryTable").getElementsByTagName('tbody')[0];
+
+			// количество строк в таблице
+			let cellQuantity = tableBody.rows.length;
+			// количество строк в таблице плюс один для коробок
+			let lastCellValue = tableBody.rows.length + 1;
+			let fezCellValue = 0;
+			let fazCellValue = 0;
+
+			// берем значение FEZ
+			if (tableBody.rows.length > 0) {
+				// Находим последний элемент <tr>
+				let lastRow = tableBody.rows[tableBody.rows.length - 1];
+
+				// Проверяем, есть ли в строке шестой элемент <td>
+				if (lastRow.cells.length >= 6) {
+					// Находим значение в шестом <td> последней строки <tr>
+					fezCellValue = parseInt(lastRow.cells[6].innerText);
+				}
+			}
+
+			forms.forEach(form => {
+				let vorgang = form.querySelector(".vorgang").value;
+				let bezeichnung = form.querySelector(".bezeichnung").value;
+				let dauer = parseInt(form.querySelector(".dauer").value);
+				let vorher = form.querySelector(".vorher").value;
+
+				let netzplan = document.getElementById("netzplan");
+				let children = netzplan.children;
+				let maxFezValue = 0; // Инициализируем переменную maxFezValue
+				let faz;
+
+
+
+				// FAZ FAZ
+				if (cellQuantity > 0) {
+					// Проверяем, есть ли дети у элемента `netzplan`
+					if (children.length > 0) {
+						// Находим последний элемент внутри `netzplan`
+						let lastElement = children[children.length - 1];
+
+						// Проверяем, имеет ли последний элемент класс `parallel-group`
+						if (lastElement.classList.contains('parallel-group')) {
+							// Получаем все элементы `span` с классом `fez` внутри `parallel-group`
+							let spans = lastElement.getElementsByClassName('fez');
+
+							// Проходимся по всем найденным элементам `span` и находим максимальное значение
+							for (let span of spans) {
+								let value = parseInt(span.innerText);
+								if (value > maxFezValue) {
+									maxFezValue = value;
+									faz = maxFezValue;
+								}
+							}
+						} else {
+							faz = fezCellValue;
+						}
+					} else { }
+				} else {
+					faz = 0;
+				}
+
+				let fez = dauer + faz;
+				let sez = fez;
+				let saz = sez - dauer;
+				if (!vorgang || !bezeichnung || isNaN(dauer)) {
+					alert("Bitte füllen Sie alle erforderlichen Felder aus.");
+					return;
+				}
+
+
+				let fp = faz - saz;
+				let gp = fp;
+
+				let newRow = tableBody.insertRow();
+				newRow.insertCell(0).innerText = tableBody.rows.length;
+				newRow.insertCell(1).innerText = vorgang;
+				newRow.insertCell(2).innerText = bezeichnung;
+				newRow.insertCell(3).innerText = dauer;
+				newRow.insertCell(4).innerText = vorher ? vorher : "-";
+				newRow.insertCell(5).innerText = faz;
+				newRow.insertCell(6).innerText = fez;
+				newRow.insertCell(7).innerText = saz;
+				newRow.insertCell(8).innerText = fp;
+				newRow.insertCell(9).innerText = gp;
+				newRow.insertCell(10).innerText = sez;
+
+				// Добавляем класс ко всем новым строкам, если checkbox выбран
+				if (isParallel) {
+					newRow.classList.add("parallel-row");
+				}
+
+				let box = createNetzBox(lastCellValue, vorgang, bezeichnung, dauer, vorher, faz, fez, saz, fp, gp, sez);
+				if (isParallel) {
+					parallelGroup.appendChild(box);
+				} else {
+					netzplanDiv.appendChild(box);
+				}
+
+				// Добавляем задержку перед обновлением значений SEZ
+				setTimeout(() => {
+					// SEZ SEZ
+					if (cellQuantity > 0) {
+						// Проверяем, есть ли дети у элемента `netzplan`
+						if (children.length > 0) {
+							// Находим последний элемент внутри `netzplan`
+							let lastElement = children[children.length - 1];
+
+							// Проверяем, имеет ли последний элемент класс `parallel-group`
+							if (lastElement.classList.contains('parallel-group')) {
+								// Получаем все элементы `span` с классом `fez` внутри `parallel-group`
+								let spans = lastElement.getElementsByClassName('fez');
+								// Проходимся по всем найденным элементам `span` и находим максимальное значение
+								for (let span of spans) {
+									let value = parseInt(span.innerText);
+									if (value > maxFezValue) {
+										maxFezValue = value;
+									}
+								}
+								let spanssez = lastElement.getElementsByClassName('sez');
+								let spanssaz = lastElement.getElementsByClassName('saz');
+
+								for (let spansez of spanssez) {
+									spansez.innerText = maxFezValue;
+								}
+
+
+
+								let spansdauer = lastElement.getElementsByClassName('dauer');
+								let dauerArray = [];
+								for (let spandauer of spansdauer) {
+									dauerArray.push(parseInt(spandauer.innerText));
+								}
+								let newArray = [];
+
+								// Выполняем действие для каждого элемента 'spansaz' и записываем результат в новый массив
+								for (let i = 0; i < spanssaz.length; i++) {
+									let result = maxFezValue - dauerArray[i];
+									spanssaz[i].innerText = result;
+								}
+
+
+								let sazArray = [];
+								for (let spansaz of spanssaz) {
+									sazArray.push(parseInt(spansaz.innerText));
+								}
+								let spansfp = lastElement.getElementsByClassName('fp');
+								for (let i = 0; i < spansfp.length; i++) {
+									let result = sazArray[i] - faz;
+									spansfp[i].innerText = result;
+								}
+
+
+								let fpArray = [];
+								for (let spanfp of spansfp) {
+									fpArray.push(parseInt(spanfp.innerText));
+								}
+								let spansgp = lastElement.getElementsByClassName('gp');
+								for (let i = 0; i < spansgp.length; i++) {
+									let result = fpArray[i];
+									spansgp[i].innerText = result;
+								}
+							} else {
+								sez = fez;
+								saz = sez - dauer;
+							}
+						}
+					}
+
+				}, 2000); // Задержка в 100 миллисекунд
+			});
+
+			if (isParallel) {
+				netzplanDiv.appendChild(parallelGroup);
+			}
+
+			document.getElementById("formsContainer").innerHTML = `<div class="entryForm">
+        <label>Vorgang (A-Z):</label>
+        <input type="text" class="vorgang" pattern="[A-Za-z]+" required>
+        <br>
+        <label>Bezeichnung:</label>
+        <input type="text" class="bezeichnung" required>
+        <br>
+        <label>Dauer (Zahl):</label>
+        <input type="number" class="dauer" required>
+        <br>
+        <label>Vorher (A-Z, getrennt durch Комmas):</label>
+        <input type="text" class="vorher">
+        <br>
+        <input type="checkbox" class="parallelCheck" onchange="addParallelForm(this)"> Gleichzeitige Handlung
+        <br>
+    </div>`;
+
+
+
+			// let parallelGroups = document.querySelector('.parallel-group');
+
+			// if (parallelGroups) {
+			// 	// Находим последний дочерний элемент внутри 'parallel-group'
+			// 	let lastChild = parallelGroups.lastElementChild;
+
+			// 	if (lastChild) {
+			// 		// Находим элемент <span class="number"> внутри последнего дочернего элемента
+			// 		let numberSpan = lastChild.querySelector('.number');
+
+			// 		if (numberSpan) {
+			// 			// Увеличиваем значение на 1
+			// 			let currentValue = parseInt(numberSpan.innerText.trim());
+			// 			numberSpan.innerText = currentValue + 1;
+			// 		}
+			// 	}
+			// }
+
+			let numberSpans = document.querySelectorAll('.number');
+			let counter = 1;
+
+			numberSpans.forEach(numberSpan => {
+				numberSpan.innerText = counter;
+				counter += 1;
+			});
+
+
+
+
+
+
+
+
+
+
+		}
+
+		// create new box
+		function createNetzBox(lastCellValue, vorgang, bezeichnung, dauer, vorher, faz, fez, saz, fp, gp, sez) {
+			let box = document.createElement("div");
+			box.className = "box";
+			box.innerHTML = `<div>Nr:<span class="number">${lastCellValue}</span> | <span>${vorgang}</span></div>
+                     <div>FAZ: <span>${faz}</span> | D: <span class="dauer">${dauer}</span> | FEZ: <span class="fez">${fez}</span></div>
+                     <div>SAZ: <span class="saz">${saz}</span> | FP: <span class="fp">${fp}</span>| GP: <span class="gp">${gp}</span> | SEZ: <span class="sez">${sez}</span></div>`;
+			return box;
+		}
+
+
+		function deleteLastEntry() {
+			let table = document.getElementById("entryTable").getElementsByTagName('tbody')[0];
+			if (table.rows.length > 0) {
+				let lastElement = table.rows[table.rows.length - 1];
+				if (lastElement.classList.contains('parallel-row')) {
+					while (lastElement && lastElement.classList.contains('parallel-row')) {
+						table.deleteRow(table.rows.length - 1);
+
+						if (table.rows.length > 0) {
+							lastElement = table.rows[table.rows.length - 1];
+						} else {
+							lastElement = null;
+						}
+					}
+				} else {
+					table.deleteRow(table.rows.length - 1);
+				}
+			}
+
+			let netzplan = document.getElementById("netzplan");
+			let children = netzplan.children;
+			if (children.length > 0) {
+				netzplan.removeChild(children[children.length - 1]);
+			}
+		}
+
+		function clearTable() {
+			document.getElementById("entryTable").getElementsByTagName('tbody')[0].innerHTML = "";
+			document.getElementById("netzplan").innerHTML = "";
+		}
+	</script>
+</body>
+
+</html>
