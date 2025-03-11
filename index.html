@@ -5,9 +5,26 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Formular mit Tabelle</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+		rel="stylesheet">
 	<style>
 		body {
 			background-color: #7fff75;
+
+			padding: 20px 30px 30px 30px;
+			font-family: "Montserrat", sans-serif;
+			font-optical-sizing: auto;
+			font-weight: 400;
+			font-style: normal;
+
+
+		}
+
+		.red {
+			color: red;
+			font-weight: 600;
 		}
 
 		table,
@@ -23,20 +40,22 @@
 		}
 
 		.invisible {
-			visibility: none;
+			display: none;
 		}
+
 
 		.flex {
-			/* display: flex; */
+			display: flex;
+			align-items: center;
 		}
 
-		.parallelCheck {
-			margin-bottom: 30px;
+		label {
+			/* pointer-events: none !important; */
 		}
 
 		.flex label {
-			/* display: block; */
-			/* min-width: 300px; */
+			display: block;
+			min-width: 330px;
 		}
 
 		.netzplan {
@@ -48,21 +67,28 @@
 		}
 
 		.table-block {
-			max-width: 338px !important;
+			/* max-width: 394px !important; */
 			overflow: hidden;
 		}
 
 		table {
 			margin-bottom: 20px;
+			background-color: #f2f2f2;
 		}
 
 		.box {
-			border: 2px solid black;
+			border: 1px solid rgb(42, 42, 42);
 			padding: 10px;
 			margin: 10px;
 			text-align: center;
 			display: inline-block;
 			position: relative;
+			background-color: #f2f2f2;
+			border-radius: 5px;
+		}
+
+		.lower-buttons {
+			margin-bottom: 20px;
 		}
 
 		.parallel-group {
@@ -70,6 +96,47 @@
 			justify-content: center;
 			gap: 10px;
 			margin-bottom: 10px;
+		}
+
+		#formsContainer {
+			background: rgb(158 255 162);
+			padding: 30px;
+			border-radius: 15px;
+			margin-bottom: 20px;
+			max-width: fit-content;
+		}
+
+
+		button {
+			background: rgb(133 255 223);
+			border: 1px solid rgb(102, 189, 166);
+			padding: 10px;
+			margin-right: 15px;
+			font: inherit;
+			color: inherit;
+			cursor: pointer;
+			border-radius: 10px;
+			transition: all 0.3s ease 0s;
+		}
+
+		button:hover {
+			background: rgb(102, 189, 166);
+		}
+
+		input {
+			border-radius: 5px;
+			border: 1px solid rgb(189, 173, 28);
+			padding: 5px;
+			/* pointer-events: auto; */
+		}
+
+		.entryForm:not(:last-child) {
+			margin-bottom: 20px;
+		}
+
+		* {
+			user-select: none;
+			cursor: default;
 		}
 	</style>
 </head>
@@ -79,26 +146,37 @@
 	<div id="formsContainer">
 		<div class="entryForm">
 
-			<label for="vorgang">Vorgang (A-Z):</label>
-			<input type="text" class="vorgang" pattern="[A-Za-z]+" required>
+			<div class="flex">
+				<label for="vorgang">Vorgang (A-Z):</label>
+				<input type="text" class="vorgang" pattern="[A-Za-z]+" required>
+			</div>
 
 			<br>
 
-			<label for="bezeichnung">Bezeichnung:</label>
-			<input type="text" class="bezeichnung" required>
+			<div class="flex">
+				<label for="bezeichnung">Bezeichnung:</label>
+				<input type="text" class="bezeichnung" required>
+			</div>
 
 			<br>
 
-			<label for="dauer">Dauer (Zahl):</label>
-			<input type="number" class="dauer" required>
+			<div class="flex">
+				<label for="dauer">Dauer (Zahl):</label>
+				<input type="number" class="dauer" required>
+			</div>
 
 			<br>
 
-			<label for="vorher">Vorher (A-Z, getrennt durch Kommas):</label>
-			<input type="text" class="vorher">
+			<div class="flex">
+				<label for="vorher">Vorher (A-Z, getrennt durch Kommas):</label>
+				<input type="text" class="vorher">
+			</div>
 
 			<br>
-			<input type="checkbox" class="parallelCheck" onchange="addParallelForm(this)"> Gleichzeitige Handlung
+			<label>
+				<input type="checkbox" class="parallelCheck" onchange="addParallelForm(this)">
+				Gleichzeitige Handlung
+			</label>
 			<br>
 		</div>
 	</div>
@@ -127,9 +205,11 @@
 		</table>
 	</div>
 
-	<button onclick="deleteLastEntry()">Lösche letzten Eintrag</button>
-	<button onclick="clearTable()">Gesamte Tabelle leeren</button>
-
+	<div class="lower-buttons">
+		<button onclick="deleteLastEntry()">Lösche letzten Eintrag</button>
+		<button onclick="clearTable()">Gesamte Tabelle leeren</button>
+	</div>
+	<div class="pfad" id="pfad">Kritischer Pfad ist:</div>
 	<div class="netzplan" id="netzplan"></div>
 
 	<script>
@@ -143,19 +223,30 @@
 				let newForm = document.createElement("div");
 				newForm.className = "entryForm";
 				newForm.innerHTML = `
-            <label>Vorgang (A-Z):</label>
-            <input type="text" class="vorgang" pattern="[A-Za-z]+" required>
+            <div class="flex">
+					<label>Vorgang (A-Z):</label>
+					<input type="text" class="vorgang" pattern="[A-Za-z]+" required>
+				</div>
             <br>
-            <label>Bezeichnung:</label>
-            <input type="text" class="bezeichnung" required>
+            <div class="flex">
+					<label>Bezeichnung:</label>
+					<input type="text" class="bezeichnung" required>
+				</div>
             <br>
-            <label>Dauer (Zahl):</label>
-            <input type="number" class="dauer" required>
+            <div class="flex">
+					<label>Dauer (Zahl):</label>
+					<input type="number" class="dauer" required>
+				</div>
             <br>
-            <label>Vorher (A-Z, getrennt durch Комmas):</label>
-            <input type="text" class="vorher">
+            <div class="flex">
+					<label>Vorher (A-Z, getrennt durch Комmas):</label>
+					<input type="text" class="vorher">
+				</div>
             <br>
-            <input type="checkbox" class="parallelCheck" onchange="addParallelForm(this)"> Gleichzeitige Handlung
+            <label>
+				<input type="checkbox" class="parallelCheck" onchange="addParallelForm(this)">
+				Gleichzeitige Handlung
+				</label>
             <br>
         `;
 				formContainer.appendChild(newForm);
@@ -189,7 +280,8 @@
 					fezCellValue = parseInt(lastRow.cells[6].innerText);
 				}
 			}
-
+			let maxdauer = 0;
+			let maxDauerVorgang;
 			forms.forEach(form => {
 				let vorgang = form.querySelector(".vorgang").value;
 				let bezeichnung = form.querySelector(".bezeichnung").value;
@@ -200,6 +292,7 @@
 				let children = netzplan.children;
 				let maxFezValue = 0; // Инициализируем переменную maxFezValue
 				let faz;
+
 
 
 
@@ -249,12 +342,36 @@
 				newRow.insertCell(2).innerText = bezeichnung;
 				newRow.insertCell(3).innerText = dauer;
 				newRow.insertCell(4).innerText = vorher ? vorher : "-";
-				newRow.insertCell(5).innerText = faz;
-				newRow.insertCell(6).innerText = fez;
-				newRow.insertCell(7).innerText = saz;
-				newRow.insertCell(8).innerText = fp;
-				newRow.insertCell(9).innerText = gp;
-				newRow.insertCell(10).innerText = sez;
+				// newRow.insertCell(5).innerText = faz;
+				// newRow.insertCell(6).innerText = fez;
+				// newRow.insertCell(7).innerText = saz;
+				// newRow.insertCell(8).innerText = fp;
+				// newRow.insertCell(9).innerText = gp;
+				// newRow.insertCell(10).innerText = sez;
+				// Добавляем класс invisible к ячейкам с индексом 5 и выше
+				let cellFaz = newRow.insertCell(5);
+				cellFaz.innerText = faz;
+				cellFaz.classList.add('invisible');
+
+				let cellFez = newRow.insertCell(6);
+				cellFez.innerText = fez;
+				cellFez.classList.add('invisible');
+
+				let cellSaz = newRow.insertCell(7);
+				cellSaz.innerText = saz;
+				cellSaz.classList.add('invisible');
+
+				let cellFp = newRow.insertCell(8);
+				cellFp.innerText = fp;
+				cellFp.classList.add('invisible');
+
+				let cellGp = newRow.insertCell(9);
+				cellGp.innerText = gp;
+				cellGp.classList.add('invisible');
+
+				let cellSez = newRow.insertCell(10);
+				cellSez.innerText = sez;
+				cellSez.classList.add('invisible');
 
 				// Добавляем класс ко всем новым строкам, если checkbox выбран
 				if (isParallel) {
@@ -345,20 +462,103 @@
 				netzplanDiv.appendChild(parallelGroup);
 			}
 
+			let kpfad = document.getElementById('pfad');
+			let vorgang = document.querySelector(".vorgang").value;
+			let netzplan = document.getElementById("netzplan");
+			let children = netzplan.children;
+			let lastElement = children[children.length - 1];
+			// if (kpfad.innerText == "") {
+			// 	kpfad.insertAdjacentText('beforeend', ', ' + vorgang);
+
+			// } else {
+			// };
+			if (cellQuantity >= 0) {
+				// Проверяем, есть ли дети у элемента `netzplan`
+				if (children.length > 0) {
+					// Находим последний элемент внутри `netzplan`
+					let lastElement = children[children.length - 1];
+					// console.log(maxdauer);
+					// Проверяем, имеет ли последний элемент класс `parallel-group`
+					if (lastElement.classList.contains('parallel-group')) {
+						// Находим все элементы с классом box и конвертируем NodeList в массив
+						let boxes = Array.from(lastElement.getElementsByClassName('box'));
+
+						// Инициализируем переменные для хранения наибольшего dauer и соответствующего vorgang
+						let maxDauer = 0;
+						let maxVorgang = '';
+
+						boxes.forEach(box => {
+							// Находим элементы с классом dauer и vorgang в текущем box
+							let dauerElement = box.querySelector('.dauer');
+							let vorgangElement = box.querySelector('.vorgang');
+
+							if (dauerElement && vorgangElement) {
+								// Получаем значение dauer
+								let dauerValue = parseInt(dauerElement.innerText);
+
+								// Сравниваем значение dauer с текущим максимальным
+								if (dauerValue > maxDauer) {
+									maxDauer = dauerValue;
+									maxVorgang = vorgangElement.innerText;
+								}
+							}
+						});
+
+						console.log(`Наибольший Dauer: ${maxDauer}, соответствующий Vorgang: ${maxVorgang}`);
+						if (kpfad.innerText != 'Kritischer Pfad ist:') {
+							kpfad.insertAdjacentText('beforeend', ', ' + maxVorgang);
+							kpfad.classList.add('red');
+						} else {
+							kpfad.insertAdjacentText('beforeend', ' ' + maxVorgang);
+							kpfad.classList.add('red');
+						}
+
+
+					} else {
+						if (kpfad.innerText != 'Kritischer Pfad ist:') {
+							kpfad.insertAdjacentText('beforeend', ', ' + vorgang);
+							kpfad.classList.add('red');
+						} else {
+							kpfad.insertAdjacentText('beforeend', ' ' + vorgang);
+							kpfad.classList.add('red');
+						}
+
+
+					}
+				}
+			} else {
+			}
+
+
+
+
+
+
 			document.getElementById("formsContainer").innerHTML = `<div class="entryForm">
-        <label>Vorgang (A-Z):</label>
-        <input type="text" class="vorgang" pattern="[A-Za-z]+" required>
+        <div class="flex">
+			<label>Vorgang (A-Z):</label>
+			<input type="text" class="vorgang" pattern="[A-Za-z]+" required>
+		  </div>
         <br>
-        <label>Bezeichnung:</label>
-        <input type="text" class="bezeichnung" required>
+        <div class="flex">
+			<label>Bezeichnung:</label>
+			<input type="text" class="bezeichnung" required>
+		  </div>
         <br>
-        <label>Dauer (Zahl):</label>
-        <input type="number" class="dauer" required>
+        <div class="flex">
+			<label>Dauer (Zahl):</label>
+			<input type="number" class="dauer" required>
+		  </div>
         <br>
-        <label>Vorher (A-Z, getrennt durch Комmas):</label>
-        <input type="text" class="vorher">
+        <div class="flex">
+			<label>Vorher (A-Z, getrennt durch Комmas):</label>
+			<input type="text" class="vorher">
+		  </div>
         <br>
-        <input type="checkbox" class="parallelCheck" onchange="addParallelForm(this)"> Gleichzeitige Handlung
+        <label>
+				<input type="checkbox" class="parallelCheck" onchange="addParallelForm(this)">
+				Gleichzeitige Handlung
+			</label>
         <br>
     </div>`;
 
@@ -385,7 +585,7 @@
 		function createNetzBox(lastCellValue, vorgang, bezeichnung, dauer, vorher, faz, fez, saz, fp, gp, sez) {
 			let box = document.createElement("div");
 			box.className = "box";
-			box.innerHTML = `<div>Nr:<span class="number">${lastCellValue}</span> | <span>${vorgang}</span></div>
+			box.innerHTML = `<div>Nr:<span class="number">${lastCellValue}</span> | <span class="vorgang">${vorgang}</span></div>
                      <div>FAZ: <span>${faz}</span> | D: <span class="dauer">${dauer}</span> | FEZ: <span class="fez">${fez}</span></div>
                      <div>SAZ: <span class="saz">${saz}</span> | FP: <span class="fp">${fp}</span>| GP: <span class="gp">${gp}</span> | SEZ: <span class="sez">${sez}</span></div>`;
 			return box;
