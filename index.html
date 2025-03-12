@@ -11,15 +11,12 @@
 		rel="stylesheet">
 	<style>
 		body {
-			background-color: #7fff75;
-
+			background-color: #c9ffc5;
 			padding: 20px 30px 30px 30px;
 			font-family: "Montserrat", sans-serif;
 			font-optical-sizing: auto;
 			font-weight: 400;
 			font-style: normal;
-
-
 		}
 
 		.red {
@@ -77,18 +74,37 @@
 		}
 
 		.box {
-			border: 1px solid rgb(42, 42, 42);
-			padding: 10px;
+			border: 2px solid rgb(42, 42, 42);
+			//padding: 10px;
 			margin: 10px;
 			text-align: center;
 			display: inline-block;
 			position: relative;
 			background-color: #f2f2f2;
-			border-radius: 5px;
+			border-radius: 10px;
+			min-width: 350px;
+			overflow: hidden;
+			
+		}
+		.box div{
+		  display: flex;
+		}
+		.cell33 {
+		  flex: 0 0 33.333%;
+		  border: 1px solid black;
+		}
+		.cell25 {
+		  flex: 0 0 25%;
+		  border: 1px solid black;
+		}
+		.cell50 {
+		  flex: 0 0 50%;
+		  border: 1px solid black;
 		}
 
 		.lower-buttons {
 			margin-bottom: 20px;
+			display: flex;
 		}
 
 		.parallel-group {
@@ -137,6 +153,15 @@
 		* {
 			user-select: none;
 			cursor: default;
+		}
+		.redback {
+			background-color: #ffb5b5;
+		}
+		@media only screen and (max-width: 770px) {
+  			.flex{
+				flex-direction: column;
+    row-gap: 10px;
+    align-items: flex-start;}
 		}
 	</style>
 </head>
@@ -250,6 +275,10 @@
             <br>
         `;
 				formContainer.appendChild(newForm);
+			}
+			else{
+			  let formContainer = document.getElementById("formsContainer");
+			  formContainer.removeChild(formContainer.lastElementChild);
 			}
 		}
 
@@ -503,6 +532,21 @@
 								}
 							}
 						});
+						boxes.forEach(box => {
+							// Находим элементы с классом dauer и vorgang в текущем box
+							let dauerElement = box.querySelector('.dauer');
+							let vorgangElement = box.querySelector('.vorgang');
+
+							if (dauerElement && vorgangElement) {
+								// Получаем значение dauer
+								let dauerValue = parseInt(dauerElement.innerText);
+
+								// Сравниваем значение dauer с текущим максимальным
+								if (dauerValue == maxDauer) {
+									box.classList.add('redback');
+								}
+							}
+						});
 
 						console.log(`Наибольший Dauer: ${maxDauer}, соответствующий Vorgang: ${maxVorgang}`);
 						if (kpfad.innerText != 'Kritischer Pfad ist:') {
@@ -518,9 +562,11 @@
 						if (kpfad.innerText != 'Kritischer Pfad ist:') {
 							kpfad.insertAdjacentText('beforeend', ', ' + vorgang);
 							kpfad.classList.add('red');
+							lastElement.classList.add('redback');
 						} else {
 							kpfad.insertAdjacentText('beforeend', ' ' + vorgang);
 							kpfad.classList.add('red');
+							lastElement.classList.add('redback');
 						}
 
 
@@ -585,9 +631,9 @@
 		function createNetzBox(lastCellValue, vorgang, bezeichnung, dauer, vorher, faz, fez, saz, fp, gp, sez) {
 			let box = document.createElement("div");
 			box.className = "box";
-			box.innerHTML = `<div>Nr:<span class="number">${lastCellValue}</span> | <span class="vorgang">${vorgang}</span></div>
-                     <div>FAZ: <span>${faz}</span> | D: <span class="dauer">${dauer}</span> | FEZ: <span class="fez">${fez}</span></div>
-                     <div>SAZ: <span class="saz">${saz}</span> | FP: <span class="fp">${fp}</span>| GP: <span class="gp">${gp}</span> | SEZ: <span class="sez">${sez}</span></div>`;
+			box.innerHTML = `<div><span class="cell50">Nr: <span class="number">${lastCellValue}</span></span> <span class="cell50">Vorgang: <span class="vorgang">${vorgang}</span></span></div>
+                     <div><span class="cell33">FAZ: <span>${faz}</span></span> <span class="cell33">D: <span class="dauer">${dauer}</span></span> <span class="cell33">FEZ: <span class="fez">${fez}</span></span></div>
+                     <div><span class="cell25">SAZ: <span class="saz">${saz}</span></span><span class="cell25">FP: <span class="fp">${fp}</span></span><span class="cell25">GP: <span class="gp">${gp}</span></span> <span class="cell25">SEZ: <span class="sez">${sez}</span></span></div>`;
 			return box;
 		}
 
@@ -616,11 +662,32 @@
 			if (children.length > 0) {
 				netzplan.removeChild(children[children.length - 1]);
 			}
+			let kpfad = document.getElementById('pfad');
+			if(kpfad.innerText !='Kritischer Pfad ist:'){
+			  function deleteLastTextNode() {
+            const kpfad = document.getElementById('pfad');
+            const childNodes = Array.from(kpfad.childNodes);
+            for (let i = childNodes.length - 1; i >= 0; i--) {
+                if (childNodes[i].nodeType === Node.TEXT_NODE) {
+                    kpfad.removeChild(childNodes[i]);
+                    break;
+                }
+            }
+            if (kpfad.innerText == 'Kritischer Pfad ist:'){
+              kpfad.classList.remove('red');
+            }
+        }
+        // Call the function to delete the last text node
+        deleteLastTextNode();
+			}
 		}
 
 		function clearTable() {
 			document.getElementById("entryTable").getElementsByTagName('tbody')[0].innerHTML = "";
 			document.getElementById("netzplan").innerHTML = "";
+			let kpfad = document.getElementById('pfad');
+			kpfad.classList.remove('red');
+			kpfad.innerHTML = "Kritischer Pfad ist:";
 		}
 	</script>
 </body>
