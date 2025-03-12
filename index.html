@@ -46,10 +46,6 @@
 			align-items: center;
 		}
 
-		label {
-			/* pointer-events: none !important; */
-		}
-
 		.flex label {
 			display: block;
 			min-width: 330px;
@@ -61,10 +57,10 @@
 			align-items: center;
 			margin-top: 20px;
 			position: relative;
+			overflow: auto;
 		}
 
 		.table-block {
-			/* max-width: 394px !important; */
 			overflow: hidden;
 		}
 
@@ -75,31 +71,34 @@
 
 		.box {
 			border: 2px solid rgb(42, 42, 42);
-			//padding: 10px;
 			margin: 10px;
 			text-align: center;
 			display: inline-block;
 			position: relative;
 			background-color: #f2f2f2;
 			border-radius: 10px;
-			min-width: 350px;
+			width: 350px;
 			overflow: hidden;
-			
+
 		}
-		.box div{
-		  display: flex;
+
+		.box div {
+			display: flex;
 		}
+
 		.cell33 {
-		  flex: 0 0 33.333%;
-		  border: 1px solid black;
+			flex: 0 0 33.333%;
+			border: 1px solid black;
 		}
+
 		.cell25 {
-		  flex: 0 0 25%;
-		  border: 1px solid black;
+			flex: 0 0 25%;
+			border: 1px solid black;
 		}
+
 		.cell50 {
-		  flex: 0 0 50%;
-		  border: 1px solid black;
+			flex: 0 0 50%;
+			border: 1px solid black;
 		}
 
 		.lower-buttons {
@@ -109,9 +108,14 @@
 
 		.parallel-group {
 			display: flex;
-			justify-content: center;
 			gap: 10px;
 			margin-bottom: 10px;
+			overflow: auto;
+			max-width: -webkit-fill-available;
+		}
+
+		.parallel-group .box {
+			min-width: 350px;
 		}
 
 		#formsContainer {
@@ -143,7 +147,6 @@
 			border-radius: 5px;
 			border: 1px solid rgb(189, 173, 28);
 			padding: 5px;
-			/* pointer-events: auto; */
 		}
 
 		.entryForm:not(:last-child) {
@@ -154,14 +157,17 @@
 			user-select: none;
 			cursor: default;
 		}
+
 		.redback {
 			background-color: #ffb5b5;
 		}
+
 		@media only screen and (max-width: 770px) {
-  			.flex{
+			.flex {
 				flex-direction: column;
-    row-gap: 10px;
-    align-items: flex-start;}
+				row-gap: 10px;
+				align-items: flex-start;
+			}
 		}
 	</style>
 </head>
@@ -243,8 +249,9 @@
 
 		// New Form for parallel activity
 		function addParallelForm(checkbox) {
+			let formContainer = document.getElementById("formsContainer");
 			if (checkbox.checked) {
-				let formContainer = document.getElementById("formsContainer");
+
 				let newForm = document.createElement("div");
 				newForm.className = "entryForm";
 				newForm.innerHTML = `
@@ -276,9 +283,9 @@
         `;
 				formContainer.appendChild(newForm);
 			}
-			else{
-			  let formContainer = document.getElementById("formsContainer");
-			  formContainer.removeChild(formContainer.lastElementChild);
+			else {
+				let formToRemove = checkbox.closest(".entryForm");
+				formContainer.removeChild(formToRemove);
 			}
 		}
 
@@ -371,13 +378,6 @@
 				newRow.insertCell(2).innerText = bezeichnung;
 				newRow.insertCell(3).innerText = dauer;
 				newRow.insertCell(4).innerText = vorher ? vorher : "-";
-				// newRow.insertCell(5).innerText = faz;
-				// newRow.insertCell(6).innerText = fez;
-				// newRow.insertCell(7).innerText = saz;
-				// newRow.insertCell(8).innerText = fp;
-				// newRow.insertCell(9).innerText = gp;
-				// newRow.insertCell(10).innerText = sez;
-				// Добавляем класс invisible к ячейкам с индексом 5 и выше
 				let cellFaz = newRow.insertCell(5);
 				cellFaz.innerText = faz;
 				cellFaz.classList.add('invisible');
@@ -496,11 +496,6 @@
 			let netzplan = document.getElementById("netzplan");
 			let children = netzplan.children;
 			let lastElement = children[children.length - 1];
-			// if (kpfad.innerText == "") {
-			// 	kpfad.insertAdjacentText('beforeend', ', ' + vorgang);
-
-			// } else {
-			// };
 			if (cellQuantity >= 0) {
 				// Проверяем, есть ли дети у элемента `netzplan`
 				if (children.length > 0) {
@@ -515,6 +510,8 @@
 						// Инициализируем переменные для хранения наибольшего dauer и соответствующего vorgang
 						let maxDauer = 0;
 						let maxVorgang = '';
+						// Инициализируем массив для хранения всех значений vorgang с максимальным значением dauer
+						let maxVorgangs = [];
 
 						boxes.forEach(box => {
 							// Находим элементы с классом dauer и vorgang в текущем box
@@ -528,7 +525,9 @@
 								// Сравниваем значение dauer с текущим максимальным
 								if (dauerValue > maxDauer) {
 									maxDauer = dauerValue;
-									maxVorgang = vorgangElement.innerText;
+									maxVorgangs = [vorgangElement.innerText];
+								} else if (dauerValue == maxDauer) {
+									maxVorgangs.push(vorgangElement.innerText);
 								}
 							}
 						});
@@ -547,16 +546,15 @@
 								}
 							}
 						});
-
-						console.log(`Наибольший Dauer: ${maxDauer}, соответствующий Vorgang: ${maxVorgang}`);
-						if (kpfad.innerText != 'Kritischer Pfad ist:') {
-							kpfad.insertAdjacentText('beforeend', ', ' + maxVorgang);
-							kpfad.classList.add('red');
-						} else {
-							kpfad.insertAdjacentText('beforeend', ' ' + maxVorgang);
-							kpfad.classList.add('red');
-						}
-
+						// Добавляем значения maxVorgangs в kpfad
+						maxVorgangs.forEach(vorgang => {
+							if (kpfad.innerText != 'Kritischer Pfad ist:') {
+								kpfad.insertAdjacentText('beforeend', ', ' + vorgang);
+							} else {
+								kpfad.insertAdjacentText('beforeend', ' ' + vorgang);
+							}
+						});
+						kpfad.classList.add('red');
 
 					} else {
 						if (kpfad.innerText != 'Kritischer Pfad ist:') {
@@ -568,8 +566,6 @@
 							kpfad.classList.add('red');
 							lastElement.classList.add('redback');
 						}
-
-
 					}
 				}
 			} else {
@@ -615,16 +611,6 @@
 				numberSpan.innerText = counter;
 				counter += 1;
 			});
-
-
-
-
-
-
-
-
-
-
 		}
 
 		// create new box
@@ -640,45 +626,62 @@
 
 		function deleteLastEntry() {
 			let table = document.getElementById("entryTable").getElementsByTagName('tbody')[0];
+			let netzplan = document.getElementById("netzplan");
+			let children = netzplan.children;
+			let parallelGroupChildrenCount = 0;
+
+
+			if (children.length > 0) {
+				// Находим последний элемент внутри netzplan
+				let lastElement = children[children.length - 1];
+
+				// Проверяем, является ли последний элемент parallel-group
+				if (lastElement.classList.contains('parallel-group')) {
+					// Получаем количество детей внутри parallel-group
+					parallelGroupChildrenCount = lastElement.children.length;
+				}
+				netzplan.removeChild(children[children.length - 1]);
+			}
+
+
 			if (table.rows.length > 0) {
 				let lastElement = table.rows[table.rows.length - 1];
-				if (lastElement.classList.contains('parallel-row')) {
-					while (lastElement && lastElement.classList.contains('parallel-row')) {
-						table.deleteRow(table.rows.length - 1);
 
-						if (table.rows.length > 0) {
-							lastElement = table.rows[table.rows.length - 1];
-						} else {
-							lastElement = null;
-						}
+				if (lastElement.classList.contains('parallel-row')) {
+					for (let i = 0; i < parallelGroupChildrenCount; i++) {
+						table.deleteRow(table.rows.length - 1);
+					}
+
+					// Обновляем lastElement, если строки остались
+					if (table.rows.length > 0) {
+						lastElement = table.rows[table.rows.length - 1];
+					} else {
+						lastElement = null;
 					}
 				} else {
 					table.deleteRow(table.rows.length - 1);
 				}
 			}
 
-			let netzplan = document.getElementById("netzplan");
-			let children = netzplan.children;
-			if (children.length > 0) {
-				netzplan.removeChild(children[children.length - 1]);
-			}
+
+
 			let kpfad = document.getElementById('pfad');
-			if(kpfad.innerText !='Kritischer Pfad ist:'){
-			  function deleteLastTextNode() {
-            const kpfad = document.getElementById('pfad');
-            const childNodes = Array.from(kpfad.childNodes);
-            for (let i = childNodes.length - 1; i >= 0; i--) {
-                if (childNodes[i].nodeType === Node.TEXT_NODE) {
-                    kpfad.removeChild(childNodes[i]);
-                    break;
-                }
-            }
-            if (kpfad.innerText == 'Kritischer Pfad ist:'){
-              kpfad.classList.remove('red');
-            }
-        }
-        // Call the function to delete the last text node
-        deleteLastTextNode();
+			if (kpfad.innerText != 'Kritischer Pfad ist:') {
+				function deleteLastTextNode() {
+					const kpfad = document.getElementById('pfad');
+					const childNodes = Array.from(kpfad.childNodes);
+					for (let i = childNodes.length - 1; i >= 0; i--) {
+						if (childNodes[i].nodeType === Node.TEXT_NODE) {
+							kpfad.removeChild(childNodes[i]);
+							break;
+						}
+					}
+					if (kpfad.innerText == 'Kritischer Pfad ist:') {
+						kpfad.classList.remove('red');
+					}
+				}
+				// Call the function to delete the last text node
+				deleteLastTextNode();
 			}
 		}
 
